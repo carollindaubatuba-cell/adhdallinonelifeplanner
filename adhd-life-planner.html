@@ -1,0 +1,2833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADHD Life Planner</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-main: #FCFAF7;
+            --bg-card: #FFFFFF;
+            --blush: #F7DDE2;
+            --pink-light: #FCECEF;
+            --lavender: #E9E1F5;
+            --sage: #E3EEE6;
+            --butter: #FFF1C7;
+            --peach: #FCE4D6;
+            --text-dark: #403B3C;
+            --text-muted: #8B8385;
+            --accent-high: #E8866A;
+            --accent-medium: #F5D170;
+            --accent-low: #A8D5BA;
+            --shadow: 0 2px 8px rgba(64, 59, 60, 0.08);
+            --shadow-lg: 0 8px 24px rgba(64, 59, 60, 0.12);
+            --radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Layout */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--bg-card);
+            border-right: 1px solid #F0E6E8;
+            padding: 2rem 1.5rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow);
+        }
+
+        .sidebar-logo {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .sidebar-logo-icon {
+            font-size: 1.6rem;
+        }
+
+        .sidebar-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-weight: 500;
+        }
+
+        .nav-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius);
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: var(--transition);
+            background: transparent;
+            border: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .nav-link:hover {
+            background: var(--pink-light);
+            color: var(--text-dark);
+        }
+
+        .nav-link.active {
+            background: var(--blush);
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Mobile Menu */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border-top: 1px solid #F0E6E8;
+            padding: 1rem;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+            z-index: 100;
+        }
+
+        .mobile-nav-menu {
+            display: flex;
+            justify-content: space-around;
+            list-style: none;
+        }
+
+        .mobile-nav-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.4rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 500;
+            padding: 0.5rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            border: none;
+            background: none;
+            transition: var(--transition);
+        }
+
+        .mobile-nav-link:hover,
+        .mobile-nav-link.active {
+            color: var(--text-dark);
+            background: var(--pink-light);
+        }
+
+        /* Header */
+        .page-header {
+            margin-bottom: 2.5rem;
+        }
+
+        .greeting {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+
+        .subgreeting {
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .date-display {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1px solid #F0E6E8;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+
+        /* Grid */
+        .grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+
+        .grid-3 {
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.25rem;
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--accent-high);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(232, 134, 106, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--pink-light);
+            color: var(--text-dark);
+        }
+
+        .btn-secondary:hover {
+            background: var(--blush);
+        }
+
+        .btn-tertiary {
+            background: transparent;
+            color: var(--text-dark);
+            border: 1px solid #F0E6E8;
+        }
+
+        .btn-tertiary:hover {
+            background: var(--pink-light);
+        }
+
+        .btn-small {
+            padding: 0.5rem 0.9rem;
+            font-size: 0.85rem;
+        }
+
+        .btn-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        /* Priority Tags */
+        .priority-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .priority-high {
+            background: rgba(232, 134, 106, 0.2);
+            color: #D97757;
+        }
+
+        .priority-medium {
+            background: rgba(245, 209, 112, 0.2);
+            color: #D4A627;
+        }
+
+        .priority-low {
+            background: rgba(168, 213, 186, 0.2);
+            color: #6BA67D;
+        }
+
+        /* Energy Level Tags */
+        .energy-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .energy-high {
+            background: rgba(245, 209, 112, 0.2);
+            color: #D4A627;
+        }
+
+        .energy-medium {
+            background: rgba(168, 213, 186, 0.2);
+            color: #6BA67D;
+        }
+
+        .energy-low {
+            background: rgba(169, 169, 169, 0.2);
+            color: #666;
+        }
+
+        /* Focus Cards */
+        .focus-card {
+            background: linear-gradient(135deg, var(--pink-light) 0%, var(--lavender) 100%);
+            border: 1px solid rgba(233, 225, 245, 0.5);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .focus-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .focus-card-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .focus-card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            word-break: break-word;
+        }
+
+        .focus-card-empty {
+            opacity: 0.6;
+            font-style: italic;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #E8E8E8;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-high), var(--accent-medium));
+            border-radius: 10px;
+            transition: width 0.6s ease;
+        }
+
+        /* Task Item */
+        .task-item {
+            background: var(--bg-card);
+            border: 1px solid #F0E6E8;
+            border-radius: var(--radius);
+            padding: 1rem;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            transition: var(--transition);
+        }
+
+        .task-item:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .task-item.completed {
+            opacity: 0.6;
+        }
+
+        .task-item.completed .task-title {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        .task-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #D0D0D0;
+            border-radius: 6px;
+            cursor: pointer;
+            flex-shrink: 0;
+            margin-top: 2px;
+            transition: var(--transition);
+            background: white;
+        }
+
+        .task-checkbox:hover {
+            border-color: var(--accent-high);
+        }
+
+        .task-checkbox:checked {
+            background: var(--accent-high);
+            border-color: var(--accent-high);
+        }
+
+        .task-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .task-title {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.3rem;
+            word-break: break-word;
+        }
+
+        .task-description {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            word-break: break-word;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            font-size: 0.85rem;
+        }
+
+        .task-meta-item {
+            color: var(--text-muted);
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        /* Modals */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-dark);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            color: var(--text-dark);
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #D0D0D0;
+            border-radius: var(--radius);
+            font-family: inherit;
+            font-size: 1rem;
+            color: var(--text-dark);
+            transition: var(--transition);
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--accent-high);
+            box-shadow: 0 0 0 3px rgba(232, 134, 106, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        /* Habit Tracker */
+        .habit-item {
+            background: var(--bg-card);
+            border: 1px solid #F0E6E8;
+            border-radius: var(--radius);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+            transition: var(--transition);
+        }
+
+        .habit-item:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .habit-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .habit-info {
+            flex: 1;
+        }
+
+        .habit-name {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.3rem;
+        }
+
+        .habit-streak {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .habit-checkbox {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid #D0D0D0;
+            cursor: pointer;
+            transition: var(--transition);
+            background: white;
+            flex-shrink: 0;
+        }
+
+        .habit-checkbox:hover {
+            border-color: var(--accent-medium);
+        }
+
+        .habit-checkbox:checked {
+            background: var(--accent-medium);
+            border-color: var(--accent-medium);
+            animation: celebrate 0.4s ease;
+        }
+
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        /* Quick Action Buttons */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .quick-action-btn {
+            padding: 1rem;
+            border: 1px solid #F0E6E8;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            cursor: pointer;
+            text-align: center;
+            transition: var(--transition);
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .quick-action-btn:hover {
+            background: var(--pink-light);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+                border-right: none;
+                border-bottom: 1px solid #F0E6E8;
+                padding: 1.5rem 1rem;
+                box-shadow: var(--shadow);
+                margin-bottom: 1rem;
+            }
+
+            .sidebar-subtitle {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1.5rem 1rem;
+                padding-bottom: 100px;
+            }
+
+            .nav-menu {
+                flex-direction: row;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 0.25rem;
+            }
+
+            .nav-link {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.85rem;
+                justify-content: center;
+                flex: 0 1 auto;
+            }
+
+            .nav-link span:last-child {
+                display: none;
+            }
+
+            .mobile-nav {
+                display: block;
+            }
+
+            .grid-2,
+            .grid-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .page {
+                padding-bottom: 2rem;
+            }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state-text {
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--text-dark);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            animation: slideIn 0.3s ease;
+            z-index: 2000;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+            }
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        /* Focus Mode Specific */
+        .focus-mode-container {
+            max-width: 600px;
+            margin: 2rem auto;
+        }
+
+        .focus-task-display {
+            background: linear-gradient(135deg, var(--peach) 0%, var(--pink-light) 100%);
+            border-radius: var(--radius);
+            padding: 3rem 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .focus-task-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            word-break: break-word;
+        }
+
+        .focus-task-meta {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .focus-timer {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--accent-high);
+            font-family: 'Courier New', monospace;
+            margin: 2rem 0;
+            letter-spacing: 0.1em;
+        }
+
+        .focus-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Overwhelm Mode */
+        .overwhelm-modal .modal-content {
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .overwhelm-step {
+            margin-bottom: 2rem;
+        }
+
+        .overwhelm-step-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--accent-high);
+            margin-bottom: 0.5rem;
+        }
+
+        .overwhelm-step-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .overwhelm-step-text {
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .overwhelm-options {
+            display: grid;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .overwhelm-option {
+            padding: 1.5rem;
+            background: var(--pink-light);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: left;
+        }
+
+        .overwhelm-option:hover {
+            background: var(--blush);
+            transform: translateY(-2px);
+        }
+
+        .overwhelm-option-title {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .overwhelm-option-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* Calendar */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .calendar-day-header {
+            text-align: center;
+            font-weight: 600;
+            padding: 0.75rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #F0E6E8;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .calendar-day:hover {
+            background: var(--pink-light);
+        }
+
+        .calendar-day.today {
+            background: var(--blush);
+            font-weight: 600;
+        }
+
+        .calendar-day.has-tasks::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            width: 4px;
+            height: 4px;
+            background: var(--accent-high);
+            border-radius: 50%;
+        }
+
+        .calendar-day.other-month {
+            color: var(--text-muted);
+            opacity: 0.5;
+        }
+
+        /* Insights */
+        .insight-box {
+            background: linear-gradient(135deg, var(--lavender) 0%, var(--pink-light) 100%);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .insight-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .insight-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        /* Subtasks */
+        .subtask-list {
+            background: var(--pink-light);
+            border-radius: var(--radius);
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .subtask-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        .subtask-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 1.5px solid #D0D0D0;
+            border-radius: 4px;
+            cursor: pointer;
+            background: white;
+        }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--accent-high);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-lg);
+            transition: var(--transition);
+            z-index: 900;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+        }
+
+        .fab:active {
+            transform: scale(0.95);
+        }
+
+        @media (max-width: 768px) {
+            .fab {
+                bottom: 120px;
+                right: 1rem;
+            }
+        }
+
+        /* Search */
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border: 1px solid #F0E6E8;
+            border-top: none;
+            border-radius: 0 0 var(--radius) var(--radius);
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 500;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .search-result-item {
+            padding: 1rem;
+            border-bottom: 1px solid #F0E6E8;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .search-result-item:hover {
+            background: var(--pink-light);
+        }
+
+        .search-result-title {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .search-result-type {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* Routine Steps */
+        .routine-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .routine-step {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-card);
+            border: 1px solid #F0E6E8;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .routine-step:hover {
+            background: var(--pink-light);
+        }
+
+        .routine-step.completed {
+            opacity: 0.6;
+        }
+
+        .routine-step-number {
+            width: 32px;
+            height: 32px;
+            background: var(--butter);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+            color: var(--text-dark);
+        }
+
+        .routine-step-name {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-logo">
+                <span class="sidebar-logo-icon">✨</span>
+                <span>ADHD Life</span>
+            </div>
+            <div class="sidebar-subtitle">A calmer way to organize your brain</div>
+            
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <button class="nav-link active" data-page="today">
+                        <span>☀️</span>
+                        <span>Today</span>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-page="tasks">
+                        <span>✓</span>
+                        <span>Tasks</span>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-page="habits">
+                        <span>🌱</span>
+                        <span>Habits</span>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-page="routines">
+                        <span>🔄</span>
+                        <span>Routines</span>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-page="braindump">
+                        <span>🧠</span>
+                        <span>Brain Dump</span>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-page="goals">
+                        <span>🎯</span>
+                        <span>Goals</span>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-page="calendar">
+                        <span>📅</span>
+                        <span>Calendar</span>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-page="insights">
+                        <span>📊</span>
+                        <span>Insights</span>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-page="settings">
+                        <span>⚙️</span>
+                        <span>Settings</span>
+                    </button>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- TODAY Page -->
+            <div class="page active" id="today-page">
+                <div class="page-header">
+                    <div class="greeting" id="greeting">Good morning ☀️</div>
+                    <div class="subgreeting">Let's make today feel manageable.</div>
+                    <div class="date-display" id="today-date"></div>
+                </div>
+
+                <!-- Quick Action Buttons -->
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem;">
+                    <button class="btn btn-primary" id="what-next-btn">✨ What should I do next?</button>
+                    <button class="btn btn-secondary" id="overwhelmed-btn">I'm overwhelmed 💙</button>
+                </div>
+
+                <!-- Today's Focus -->
+                <div class="card" style="margin-bottom: 2rem;">
+                    <div class="card-title">Today's Focus</div>
+                    <div id="focus-cards" class="grid-3">
+                        <div class="focus-card" data-focus-type="must">
+                            <div class="focus-card-label">Must Do</div>
+                            <div class="focus-card-title" id="must-do-title" class="focus-card-empty">Add priority task</div>
+                            <button class="btn btn-small btn-secondary" onclick="app.openAddFocusModal('must')">+ Add</button>
+                        </div>
+                        <div class="focus-card" data-focus-type="should">
+                            <div class="focus-card-label">Should Do</div>
+                            <div class="focus-card-title" id="should-do-title" class="focus-card-empty">Add important task</div>
+                            <button class="btn btn-small btn-secondary" onclick="app.openAddFocusModal('should')">+ Add</button>
+                        </div>
+                        <div class="focus-card" data-focus-type="could">
+                            <div class="focus-card-label">Could Do</div>
+                            <div class="focus-card-title" id="could-do-title" class="focus-card-empty">Add if there's time</div>
+                            <button class="btn btn-small btn-secondary" onclick="app.openAddFocusModal('could')">+ Add</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Today's Progress -->
+                <div class="card">
+                    <div class="card-title">Today's Progress</div>
+                    <div id="progress-stats" style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-dark);">0 / 0 tasks completed</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-bar" style="width: 0%;"></div>
+                    </div>
+                    <div style="text-align: center; color: var(--text-muted); margin-top: 1rem; font-size: 0.95rem;">
+                        <span id="progress-message">You're making progress. Keep going. 💗</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TASKS Page -->
+            <div class="page" id="tasks-page">
+                <div class="page-header">
+                    <div class="greeting">Tasks</div>
+                    <div class="subgreeting">What needs to get done?</div>
+                </div>
+
+                <!-- Filters -->
+                <div style="display: flex; gap: 0.75rem; margin-bottom: 2rem; flex-wrap: wrap;">
+                    <button class="btn btn-secondary" onclick="app.filterTasks('all')">All</button>
+                    <button class="btn btn-tertiary" onclick="app.filterTasks('today')">Today</button>
+                    <button class="btn btn-tertiary" onclick="app.filterTasks('upcoming')">Upcoming</button>
+                    <button class="btn btn-tertiary" onclick="app.filterTasks('overdue')">Overdue</button>
+                    <button class="btn btn-tertiary" onclick="app.filterTasks('high')">High Priority</button>
+                    <button class="btn btn-tertiary" onclick="app.filterTasks('low-energy')">Low Energy</button>
+                    <button class="btn btn-tertiary" onclick="app.filterTasks('completed')">Completed</button>
+                </div>
+
+                <div id="tasks-container"></div>
+            </div>
+
+            <!-- HABITS Page -->
+            <div class="page" id="habits-page">
+                <div class="page-header">
+                    <div class="greeting">Habits</div>
+                    <div class="subgreeting">Build consistency, one day at a time.</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Today's Habits</div>
+                    <div id="habits-container"></div>
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 1.5rem;" onclick="app.openAddHabitModal()">+ Add Habit</button>
+                </div>
+            </div>
+
+            <!-- ROUTINES Page -->
+            <div class="page" id="routines-page">
+                <div class="page-header">
+                    <div class="greeting">Routines</div>
+                    <div class="subgreeting">One step at a time.</div>
+                </div>
+
+                <div id="routines-container" class="grid"></div>
+                <button class="btn btn-primary" style="width: 100%; margin-top: 2rem;" onclick="app.openAddRoutineModal()">+ Create Routine</button>
+            </div>
+
+            <!-- BRAIN DUMP Page -->
+            <div class="page" id="braindump-page">
+                <div class="page-header">
+                    <div class="greeting">Get it out of your head.</div>
+                    <div class="subgreeting">You don't have to organize everything right now.</div>
+                </div>
+
+                <div class="card">
+                    <textarea class="form-textarea" id="brain-dump-textarea" placeholder="What's on your mind?" style="margin-bottom: 1rem;"></textarea>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <button class="btn btn-secondary" onclick="app.saveBrainDump()">Save Note</button>
+                        <button class="btn btn-secondary" onclick="app.convertBrainDumpToTasks()">Turn Into Tasks</button>
+                    </div>
+                </div>
+
+                <div style="margin-top: 2rem;">
+                    <h3 style="margin-bottom: 1rem;">Saved Brain Dumps</h3>
+                    <div id="brain-dumps-list"></div>
+                </div>
+            </div>
+
+            <!-- GOALS Page -->
+            <div class="page" id="goals-page">
+                <div class="page-header">
+                    <div class="greeting">Goals</div>
+                    <div class="subgreeting">What would make life feel a little better?</div>
+                </div>
+
+                <div id="goals-container" class="grid-2"></div>
+                <button class="btn btn-primary" style="width: 100%; margin-top: 2rem;" onclick="app.openAddGoalModal()">+ Add Goal</button>
+            </div>
+
+            <!-- CALENDAR Page -->
+            <div class="page" id="calendar-page">
+                <div class="page-header">
+                    <div class="greeting">Calendar</div>
+                    <div class="subgreeting">See what's coming.</div>
+                </div>
+
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <button class="btn btn-tertiary" onclick="app.prevMonth()">← Prev</button>
+                        <div id="calendar-title" style="font-size: 1.2rem; font-weight: 600;"></div>
+                        <button class="btn btn-tertiary" onclick="app.nextMonth()">Next →</button>
+                    </div>
+                    <div id="calendar-container"></div>
+                </div>
+            </div>
+
+            <!-- INSIGHTS Page -->
+            <div class="page" id="insights-page">
+                <div class="page-header">
+                    <div class="greeting">Insights</div>
+                    <div class="subgreeting">See your progress at a glance.</div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="insight-box">
+                        <div class="insight-value" id="insight-tasks">0</div>
+                        <div class="insight-label">Tasks Completed This Week</div>
+                    </div>
+                    <div class="insight-box">
+                        <div class="insight-value" id="insight-habits">0</div>
+                        <div class="insight-label">Habits Completed This Week</div>
+                    </div>
+                    <div class="insight-box">
+                        <div class="insight-value" id="insight-streaks">0</div>
+                        <div class="insight-label">Active Habit Streaks</div>
+                    </div>
+                    <div class="insight-box">
+                        <div class="insight-value" id="insight-goals">0</div>
+                        <div class="insight-label">Goals Progressed</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 2rem;">
+                    <div class="card">
+                        <div class="card-title">Your Patterns</div>
+                        <div id="insights-content" style="color: var(--text-muted);">
+                            <p>Complete tasks and habits to see your patterns emerge.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SETTINGS Page -->
+            <div class="page" id="settings-page">
+                <div class="page-header">
+                    <div class="greeting">Settings</div>
+                    <div class="subgreeting">Customize your experience.</div>
+                </div>
+
+                <div class="card" style="max-width: 600px;">
+                    <div class="card-title">Profile</div>
+                    <div class="form-group">
+                        <label class="form-label">Your Name</label>
+                        <input type="text" class="form-input" id="user-name" placeholder="Enter your name">
+                    </div>
+
+                    <div class="card-title" style="margin-top: 2rem;">Data</div>
+                    <button class="btn btn-secondary" onclick="app.exportData()">📥 Export Data</button>
+                    <button class="btn btn-secondary" onclick="app.importData()" style="margin-left: 0.75rem;">📤 Import Data</button>
+                    <button class="btn btn-secondary" onclick="app.resetAllData()" style="margin-left: 0.75rem; background: #FFB4B4;">🔄 Reset All Data</button>
+                    <input type="file" id="import-file" accept=".json" style="display: none;">
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Focus Modal -->
+    <div class="modal-overlay" id="focus-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="app.closeFocusModal()">✕</button>
+            <div class="modal-header">Start Focus Session</div>
+            <div id="focus-modal-content"></div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Task Modal -->
+    <div class="modal-overlay" id="task-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="app.closeTaskModal()">✕</button>
+            <div class="modal-header" id="task-modal-title">Add Task</div>
+            <form id="task-form" onsubmit="app.saveTask(event)">
+                <div class="form-group">
+                    <label class="form-label">Task Title</label>
+                    <input type="text" class="form-input" id="task-title" placeholder="What needs to get done?" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description (optional)</label>
+                    <textarea class="form-textarea" id="task-description" placeholder="Add details..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Due Date</label>
+                    <input type="date" class="form-input" id="task-due-date">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Priority</label>
+                    <select class="form-select" id="task-priority">
+                        <option value="high">🔴 High</option>
+                        <option value="medium" selected>🟡 Medium</option>
+                        <option value="low">🟢 Low</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Energy Level</label>
+                    <select class="form-select" id="task-energy">
+                        <option value="high">⚡ High Energy</option>
+                        <option value="medium" selected>🌿 Medium Energy</option>
+                        <option value="low">🌙 Low Energy</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Estimated Time (minutes)</label>
+                    <input type="number" class="form-input" id="task-time" placeholder="e.g., 30" min="1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <input type="text" class="form-input" id="task-category" placeholder="e.g., Work, Personal">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Break into smaller steps</label>
+                    <div id="subtasks-container" style="margin-top: 0.75rem;"></div>
+                    <button type="button" class="btn btn-small btn-tertiary" onclick="app.addSubtaskInput()">+ Add Step</button>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary">Save Task</button>
+                    <button type="button" class="btn btn-tertiary" onclick="app.closeTaskModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Focus Modal -->
+    <div class="modal-overlay" id="add-focus-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="app.closeAddFocusModal()">✕</button>
+            <div class="modal-header">Add Focus Task</div>
+            <form id="focus-form" onsubmit="app.saveFocus(event)">
+                <div class="form-group">
+                    <label class="form-label">Which task matters most?</label>
+                    <input type="text" class="form-input" id="focus-title" placeholder="Choose a task" required>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-primary">Set Focus</button>
+                    <button type="button" class="btn btn-tertiary" onclick="app.closeAddFocusModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Habit Modal -->
+    <div class="modal-overlay" id="habit-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="app.closeHabitModal()">✕</button>
+            <div class="modal-header">Add Habit</div>
+            <form id="habit-form" onsubmit="app.saveHabit(event)">
+                <div class="form-group">
+                    <label class="form-label">Habit Name</label>
+                    <input type="text" class="form-input" id="habit-name" placeholder="e.g., Drink water" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Icon</label>
+                    <input type="text" class="form-input" id="habit-icon" placeholder="e.g., 💧" value="🌱" maxlength="2">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Color Category</label>
+                    <select class="form-select" id="habit-color">
+                        <option value="yellow">🌕 Yellow</option>
+                        <option value="green">🌿 Green</option>
+                        <option value="blue">💙 Blue</option>
+                        <option value="pink">💗 Pink</option>
+                        <option value="purple">💜 Purple</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-primary">Create Habit</button>
+                    <button type="button" class="btn btn-tertiary" onclick="app.closeHabitModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Routine Modal -->
+    <div class="modal-overlay" id="routine-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="app.closeRoutineModal()">✕</button>
+            <div class="modal-header">Create Routine</div>
+            <form id="routine-form" onsubmit="app.saveRoutine(event)">
+                <div class="form-group">
+                    <label class="form-label">Routine Name</label>
+                    <select class="form-select" id="routine-name" required>
+                        <option value="">Select a routine type</option>
+                        <option value="morning">☀️ Morning Routine</option>
+                        <option value="night">🌙 Night Routine</option>
+                        <option value="work">💼 Work Routine</option>
+                        <option value="study">📚 Study Routine</option>
+                        <option value="cleaning">🧹 Cleaning Routine</option>
+                        <option value="selfcare">✨ Self-Care Routine</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                </div>
+                <div class="form-group" id="custom-routine-group" style="display: none;">
+                    <label class="form-label">Routine Name (Custom)</label>
+                    <input type="text" class="form-input" id="routine-name-custom" placeholder="e.g., Workout Routine">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Steps</label>
+                    <div id="routine-steps-container"></div>
+                    <button type="button" class="btn btn-small btn-secondary" onclick="app.addRoutineStep()">+ Add Step</button>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-primary">Create Routine</button>
+                    <button type="button" class="btn btn-tertiary" onclick="app.closeRoutineModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Goal Modal -->
+    <div class="modal-overlay" id="goal-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="app.closeGoalModal()">✕</button>
+            <div class="modal-header">Add Goal</div>
+            <form id="goal-form" onsubmit="app.saveGoal(event)">
+                <div class="form-group">
+                    <label class="form-label">Goal Name</label>
+                    <input type="text" class="form-input" id="goal-name" placeholder="What do you want to achieve?" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select class="form-select" id="goal-category">
+                        <option value="personal">Personal</option>
+                        <option value="health">Health</option>
+                        <option value="work">Work</option>
+                        <option value="school">School</option>
+                        <option value="money">Money</option>
+                        <option value="relationships">Relationships</option>
+                        <option value="home">Home</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Why does it matter?</label>
+                    <textarea class="form-textarea" id="goal-why" placeholder="Why is this important?"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Deadline</label>
+                    <input type="date" class="form-input" id="goal-deadline">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Current Progress</label>
+                    <input type="number" class="form-input" id="goal-progress" placeholder="0" value="0" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Goal Target</label>
+                    <input type="text" class="form-input" id="goal-target" placeholder="e.g., 100% or $2,000">
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-primary">Create Goal</button>
+                    <button type="button" class="btn btn-tertiary" onclick="app.closeGoalModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Overwhelm Modal -->
+    <div class="modal-overlay overwhelm-modal" id="overwhelm-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="app.closeOverwhelmModal()">✕</button>
+            <div class="overwhelm-step">
+                <div class="overwhelm-step-number">1</div>
+                <div class="overwhelm-step-title">Take one breath.</div>
+                <div class="overwhelm-step-text">You're going to be okay. Let's make this smaller.</div>
+            </div>
+            <div class="overwhelm-step">
+                <div class="overwhelm-step-number">2</div>
+                <div class="overwhelm-step-title">Choose ONE thing.</div>
+                <div class="overwhelm-step-text">Just pick one to start with.</div>
+            </div>
+            <div class="overwhelm-options">
+                <div class="overwhelm-option" onclick="app.overwhelmChoice('quick')">
+                    <div class="overwhelm-option-title">⚡ 5-Minute Win</div>
+                    <div class="overwhelm-option-desc">Something quick that feels good</div>
+                </div>
+                <div class="overwhelm-option" onclick="app.overwhelmChoice('important')">
+                    <div class="overwhelm-option-title">🎯 Important Task</div>
+                    <div class="overwhelm-option-desc">Something that matters today</div>
+                </div>
+                <div class="overwhelm-option" onclick="app.overwhelmChoice('easy')">
+                    <div class="overwhelm-option-title">😌 Easy Win</div>
+                    <div class="overwhelm-option-desc">Something that calms you down</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Start Routine Modal -->
+    <div class="modal-overlay" id="routine-start-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="app.closeRoutineStartModal()">✕</button>
+            <div class="modal-header" id="routine-start-title">Morning Routine</div>
+            <div id="routine-start-steps"></div>
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button class="btn btn-primary" onclick="app.completeRoutine()">Complete Routine</button>
+                <button class="btn btn-tertiary" onclick="app.closeRoutineStartModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast-container"></div>
+
+    <!-- Floating Action Button -->
+    <button class="fab" id="fab" onclick="app.openQuickAdd()">+</button>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-nav">
+        <ul class="mobile-nav-menu">
+            <li><button class="mobile-nav-link active" data-page="today">☀️</button></li>
+            <li><button class="mobile-nav-link" data-page="tasks">✓</button></li>
+            <li><button class="mobile-nav-link" data-page="habits">🌱</button></li>
+            <li><button class="mobile-nav-link" data-page="routines">🔄</button></li>
+            <li><button class="mobile-nav-link" data-page="braindump">🧠</button></li>
+        </ul>
+    </nav>
+
+    <script>
+        // App State
+        const app = {
+            currentUser: 'User',
+            currentPage: 'today',
+            currentMonth: new Date(),
+            focusModalType: null,
+            editingTaskId: null,
+            focusTimer: null,
+            focusTimeRemaining: 0,
+
+            // Initialize
+            init() {
+                this.loadData();
+                this.setupEventListeners();
+                this.updateDate();
+                this.renderToday();
+                this.addSampleData();
+                
+                // Update greeting name
+                const userNameInput = document.getElementById('user-name');
+                if (userNameInput) {
+                    userNameInput.value = this.currentUser;
+                }
+            },
+
+            // Event Listeners
+            setupEventListeners() {
+                // Navigation
+                document.querySelectorAll('[data-page]').forEach(btn => {
+                    btn.addEventListener('click', (e) => this.goToPage(e.target.closest('[data-page]').dataset.page));
+                });
+
+                // User name
+                const userNameInput = document.getElementById('user-name');
+                if (userNameInput) {
+                    userNameInput.addEventListener('blur', (e) => {
+                        this.currentUser = e.target.value || 'User';
+                        this.updateGreeting();
+                        this.saveData();
+                    });
+                }
+
+                // Routine type change
+                const routineSelect = document.getElementById('routine-name');
+                if (routineSelect) {
+                    routineSelect.addEventListener('change', (e) => {
+                        const customGroup = document.getElementById('custom-routine-group');
+                        if (e.target.value === 'custom') {
+                            customGroup.style.display = 'block';
+                        } else {
+                            customGroup.style.display = 'none';
+                        }
+                    });
+                }
+
+                // Modal overlay clicks
+                document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                    overlay.addEventListener('click', (e) => {
+                        if (e.target === overlay) {
+                            overlay.classList.remove('active');
+                        }
+                    });
+                });
+            },
+
+            // Navigation
+            goToPage(page) {
+                this.currentPage = page;
+                
+                // Update nav
+                document.querySelectorAll('[data-page]').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.page === page);
+                });
+
+                // Update pages
+                document.querySelectorAll('.page').forEach(p => {
+                    p.classList.remove('active');
+                });
+                document.getElementById(`${page}-page`).classList.add('active');
+
+                // Render page
+                if (page === 'today') this.renderToday();
+                if (page === 'tasks') this.renderTasks('all');
+                if (page === 'habits') this.renderHabits();
+                if (page === 'routines') this.renderRoutines();
+                if (page === 'braindump') this.renderBrainDump();
+                if (page === 'goals') this.renderGoals();
+                if (page === 'calendar') this.renderCalendar();
+                if (page === 'insights') this.renderInsights();
+
+                // Scroll to top
+                document.querySelector('.main-content').scrollTop = 0;
+            },
+
+            // Today Page
+            renderToday() {
+                this.updateGreeting();
+                this.updateFocusCards();
+                this.updateProgress();
+            },
+
+            updateGreeting() {
+                const greeting = document.getElementById('greeting');
+                const hour = new Date().getHours();
+                const timeGreeting = hour < 12 ? '☀️' : hour < 18 ? '🌤️' : '🌙';
+                greeting.textContent = `Good ${hour < 12 ? 'morning' : hour < 18 ? 'afternoon' : 'evening'}, ${this.currentUser} ${timeGreeting}`;
+            },
+
+            updateDate() {
+                const today = new Date();
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                document.getElementById('today-date').textContent = today.toLocaleDateString('en-US', options);
+            },
+
+            updateFocusCards() {
+                ['must', 'should', 'could'].forEach(type => {
+                    const focus = this.data.focus[type];
+                    const titleEl = document.getElementById(`${type}-do-title`);
+                    if (focus) {
+                        titleEl.textContent = focus;
+                        titleEl.classList.remove('focus-card-empty');
+                    } else {
+                        titleEl.textContent = `Add ${type === 'must' ? 'priority' : type === 'should' ? 'important' : 'time-permitting'} task`;
+                        titleEl.classList.add('focus-card-empty');
+                    }
+                });
+            },
+
+            updateProgress() {
+                const tasks = this.data.tasks;
+                const completed = tasks.filter(t => t.completed).length;
+                const total = tasks.length || 1;
+                const percentage = (completed / total) * 100;
+
+                document.getElementById('progress-stats').textContent = `${completed} / ${total} tasks completed`;
+                document.getElementById('progress-bar').style.width = percentage + '%';
+            },
+
+            openAddFocusModal(type) {
+                this.focusModalType = type;
+                const modal = document.getElementById('add-focus-modal');
+                document.getElementById('focus-title').value = '';
+                modal.classList.add('active');
+            },
+
+            closeAddFocusModal() {
+                document.getElementById('add-focus-modal').classList.remove('active');
+            },
+
+            saveFocus(e) {
+                e.preventDefault();
+                const title = document.getElementById('focus-title').value;
+                this.data.focus[this.focusModalType] = title;
+                this.closeAddFocusModal();
+                this.updateFocusCards();
+                this.showToast('Focus task added!');
+                this.saveData();
+            },
+
+            // Tasks
+            renderTasks(filter = 'all') {
+                const container = document.getElementById('tasks-container');
+                let tasks = this.data.tasks;
+
+                if (filter === 'today') {
+                    const today = this.getDateString(new Date());
+                    tasks = tasks.filter(t => t.dueDate === today);
+                } else if (filter === 'upcoming') {
+                    const tomorrow = new Date();
+                    tomorrow.setDate(tomorrow.getDate() + 1);
+                    tasks = tasks.filter(t => t.dueDate && t.dueDate > this.getDateString(new Date()) && !t.completed);
+                } else if (filter === 'overdue') {
+                    const today = this.getDateString(new Date());
+                    tasks = tasks.filter(t => t.dueDate && t.dueDate < today && !t.completed);
+                } else if (filter === 'high') {
+                    tasks = tasks.filter(t => t.priority === 'high');
+                } else if (filter === 'low-energy') {
+                    tasks = tasks.filter(t => t.energy === 'low');
+                } else if (filter === 'completed') {
+                    tasks = tasks.filter(t => t.completed);
+                }
+
+                if (tasks.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">✨</div>
+                            <div class="empty-state-title">Nothing here yet.</div>
+                            <div class="empty-state-text">Add one small thing you want to accomplish.</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = tasks.map(task => this.renderTaskItem(task)).join('');
+            },
+
+            renderTaskItem(task) {
+                const priorityEmoji = { high: '🔴', medium: '🟡', low: '🟢' };
+                const energyEmoji = { high: '⚡', medium: '🌿', low: '🌙' };
+
+                return `
+                    <div class="task-item ${task.completed ? 'completed' : ''}">
+                        <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} 
+                            onchange="app.toggleTask('${task.id}')">
+                        <div class="task-content">
+                            <div class="task-title">${task.title}</div>
+                            ${task.description ? `<div class="task-description">${task.description}</div>` : ''}
+                            ${task.subtasks && task.subtasks.length > 0 ? `
+                                <div class="subtask-list">
+                                    ${task.subtasks.map((st, i) => `
+                                        <div class="subtask-item">
+                                            <input type="checkbox" class="subtask-checkbox" 
+                                                ${st.completed ? 'checked' : ''}
+                                                onchange="app.toggleSubtask('${task.id}', ${i})">
+                                            <span>${st.title}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                            <div class="task-meta">
+                                <span class="task-meta-item">${priorityEmoji[task.priority]} ${task.priority}</span>
+                                <span class="task-meta-item">${energyEmoji[task.energy]} ${task.energy}</span>
+                                ${task.time ? `<span class="task-meta-item">⏱️ ${task.time}min</span>` : ''}
+                                ${task.dueDate ? `<span class="task-meta-item">📅 ${task.dueDate}</span>` : ''}
+                                ${task.category ? `<span class="task-meta-item">🏷️ ${task.category}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="task-actions">
+                            <button class="btn btn-icon btn-secondary" onclick="app.openEditTaskModal('${task.id}')" title="Edit">✏️</button>
+                            <button class="btn btn-icon btn-tertiary" onclick="app.deleteTask('${task.id}')" title="Delete">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            },
+
+            filterTasks(filter) {
+                // Update button states
+                document.querySelectorAll('#tasks-page .btn').forEach(btn => {
+                    const text = btn.textContent.toLowerCase();
+                    if (text.includes(filter === 'all' ? 'all' : filter)) {
+                        btn.classList.remove('btn-tertiary');
+                        btn.classList.add('btn-secondary');
+                    } else {
+                        btn.classList.remove('btn-secondary');
+                        btn.classList.add('btn-tertiary');
+                    }
+                });
+                this.renderTasks(filter);
+            },
+
+            openAddTaskModal() {
+                this.editingTaskId = null;
+                document.getElementById('task-modal-title').textContent = 'Add Task';
+                document.getElementById('task-form').reset();
+                document.getElementById('subtasks-container').innerHTML = '';
+                document.getElementById('task-modal').classList.add('active');
+            },
+
+            openEditTaskModal(taskId) {
+                const task = this.data.tasks.find(t => t.id === taskId);
+                if (!task) return;
+
+                this.editingTaskId = taskId;
+                document.getElementById('task-modal-title').textContent = 'Edit Task';
+                document.getElementById('task-title').value = task.title;
+                document.getElementById('task-description').value = task.description || '';
+                document.getElementById('task-due-date').value = task.dueDate || '';
+                document.getElementById('task-priority').value = task.priority;
+                document.getElementById('task-energy').value = task.energy;
+                document.getElementById('task-time').value = task.time || '';
+                document.getElementById('task-category').value = task.category || '';
+
+                const subtasksContainer = document.getElementById('subtasks-container');
+                subtasksContainer.innerHTML = '';
+                if (task.subtasks) {
+                    task.subtasks.forEach(st => {
+                        subtasksContainer.innerHTML += `
+                            <input type="text" class="form-input subtask-input" value="${st.title}" placeholder="Step..." style="margin-bottom: 0.75rem;">
+                        `;
+                    });
+                }
+
+                document.getElementById('task-modal').classList.add('active');
+            },
+
+            closeTaskModal() {
+                document.getElementById('task-modal').classList.remove('active');
+            },
+
+            addSubtaskInput() {
+                const container = document.getElementById('subtasks-container');
+                container.innerHTML += `
+                    <input type="text" class="form-input subtask-input" placeholder="Step..." style="margin-bottom: 0.75rem;">
+                `;
+            },
+
+            saveTask(e) {
+                e.preventDefault();
+
+                const subtasks = Array.from(document.querySelectorAll('.subtask-input'))
+                    .map(input => ({ title: input.value, completed: false }))
+                    .filter(st => st.title.trim());
+
+                const taskData = {
+                    title: document.getElementById('task-title').value,
+                    description: document.getElementById('task-description').value,
+                    dueDate: document.getElementById('task-due-date').value,
+                    priority: document.getElementById('task-priority').value,
+                    energy: document.getElementById('task-energy').value,
+                    time: parseInt(document.getElementById('task-time').value) || 0,
+                    category: document.getElementById('task-category').value,
+                    subtasks: subtasks,
+                };
+
+                if (this.editingTaskId) {
+                    const task = this.data.tasks.find(t => t.id === this.editingTaskId);
+                    if (task) {
+                        Object.assign(task, taskData);
+                    }
+                } else {
+                    this.data.tasks.push({
+                        id: Date.now().toString(),
+                        ...taskData,
+                        completed: false,
+                        createdAt: new Date().toISOString(),
+                    });
+                }
+
+                this.closeTaskModal();
+                this.renderTasks('all');
+                this.renderToday();
+                this.showToast(this.editingTaskId ? 'Task updated!' : 'Task added!');
+                this.saveData();
+            },
+
+            toggleTask(taskId) {
+                const task = this.data.tasks.find(t => t.id === taskId);
+                if (task) {
+                    task.completed = !task.completed;
+                    if (task.completed) {
+                        this.showToast('Great job! 🎉');
+                    }
+                    this.renderTasks('all');
+                    this.renderToday();
+                    this.saveData();
+                }
+            },
+
+            toggleSubtask(taskId, subtaskIndex) {
+                const task = this.data.tasks.find(t => t.id === taskId);
+                if (task && task.subtasks && task.subtasks[subtaskIndex]) {
+                    task.subtasks[subtaskIndex].completed = !task.subtasks[subtaskIndex].completed;
+                    this.renderTasks('all');
+                    this.saveData();
+                }
+            },
+
+            deleteTask(taskId) {
+                if (confirm('Delete this task?')) {
+                    this.data.tasks = this.data.tasks.filter(t => t.id !== taskId);
+                    this.renderTasks('all');
+                    this.renderToday();
+                    this.showToast('Task deleted');
+                    this.saveData();
+                }
+            },
+
+            // Habits
+            renderHabits() {
+                const container = document.getElementById('habits-container');
+                const today = this.getDateString(new Date());
+
+                if (this.data.habits.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🌱</div>
+                            <div class="empty-state-title">Start with one habit.</div>
+                            <div class="empty-state-text">You don't need ten. 🌱</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = this.data.habits.map(habit => {
+                    const todayEntry = habit.history && habit.history[today];
+                    return `
+                        <div class="habit-item">
+                            <div class="habit-icon">${habit.icon}</div>
+                            <div class="habit-info">
+                                <div class="habit-name">${habit.name}</div>
+                                <div class="habit-streak">You've shown up ${habit.streak} times this month.</div>
+                            </div>
+                            <input type="checkbox" class="habit-checkbox" ${todayEntry ? 'checked' : ''} 
+                                onchange="app.toggleHabit('${habit.id}', '${today}')">
+                        </div>
+                    `;
+                }).join('');
+            },
+
+            openAddHabitModal() {
+                document.getElementById('habit-form').reset();
+                document.getElementById('habit-icon').value = '🌱';
+                document.getElementById('habit-modal').classList.add('active');
+            },
+
+            closeHabitModal() {
+                document.getElementById('habit-modal').classList.remove('active');
+            },
+
+            saveHabit(e) {
+                e.preventDefault();
+                this.data.habits.push({
+                    id: Date.now().toString(),
+                    name: document.getElementById('habit-name').value,
+                    icon: document.getElementById('habit-icon').value || '🌱',
+                    color: document.getElementById('habit-color').value,
+                    streak: 0,
+                    history: {},
+                });
+                this.closeHabitModal();
+                this.renderHabits();
+                this.showToast('Habit created!');
+                this.saveData();
+            },
+
+            toggleHabit(habitId, date) {
+                const habit = this.data.habits.find(h => h.id === habitId);
+                if (habit) {
+                    if (!habit.history) habit.history = {};
+                    if (habit.history[date]) {
+                        delete habit.history[date];
+                        habit.streak = Math.max(0, habit.streak - 1);
+                    } else {
+                        habit.history[date] = true;
+                        habit.streak += 1;
+                    }
+                    this.renderHabits();
+                    this.saveData();
+                }
+            },
+
+            // Routines
+            renderRoutines() {
+                const container = document.getElementById('routines-container');
+
+                if (this.data.routines.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state" style="grid-column: 1 / -1;">
+                            <div class="empty-state-icon">🔄</div>
+                            <div class="empty-state-title">No routines yet.</div>
+                            <div class="empty-state-text">Create your first routine to stay organized.</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = this.data.routines.map(routine => `
+                    <div class="card">
+                        <div class="card-title">${routine.name}</div>
+                        <div class="routine-steps">
+                            ${routine.steps.map((step, i) => `
+                                <div class="routine-step">
+                                    <div class="routine-step-number">${i + 1}</div>
+                                    <div class="routine-step-name">${step}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
+                            <button class="btn btn-primary" onclick="app.startRoutine('${routine.id}')">Start Routine</button>
+                            <button class="btn btn-tertiary" onclick="app.deleteRoutine('${routine.id}')">Delete</button>
+                        </div>
+                    </div>
+                `).join('');
+            },
+
+            openAddRoutineModal() {
+                document.getElementById('routine-form').reset();
+                document.getElementById('routine-steps-container').innerHTML = '';
+                this.addRoutineStep();
+                document.getElementById('routine-modal').classList.add('active');
+            },
+
+            closeRoutineModal() {
+                document.getElementById('routine-modal').classList.remove('active');
+            },
+
+            addRoutineStep() {
+                const container = document.getElementById('routine-steps-container');
+                const stepNum = container.children.length + 1;
+                container.innerHTML += `
+                    <input type="text" class="form-input routine-step-input" placeholder="Step ${stepNum}..." style="margin-bottom: 0.75rem;">
+                `;
+            },
+
+            saveRoutine(e) {
+                e.preventDefault();
+                const steps = Array.from(document.querySelectorAll('.routine-step-input'))
+                    .map(input => input.value)
+                    .filter(v => v.trim());
+
+                if (steps.length === 0) {
+                    alert('Add at least one step');
+                    return;
+                }
+
+                const name = document.getElementById('routine-name').value;
+                const customName = document.getElementById('routine-name-custom').value;
+
+                this.data.routines.push({
+                    id: Date.now().toString(),
+                    name: name === 'custom' ? customName : name,
+                    steps: steps,
+                });
+
+                this.closeRoutineModal();
+                this.renderRoutines();
+                this.showToast('Routine created!');
+                this.saveData();
+            },
+
+            startRoutine(routineId) {
+                const routine = this.data.routines.find(r => r.id === routineId);
+                if (!routine) return;
+
+                document.getElementById('routine-start-title').textContent = routine.name;
+                const stepsContainer = document.getElementById('routine-start-steps');
+                stepsContainer.innerHTML = routine.steps.map((step, i) => `
+                    <div class="routine-step" style="margin-bottom: 0.75rem;">
+                        <div class="routine-step-number">${i + 1}</div>
+                        <div class="routine-step-name">${step}</div>
+                    </div>
+                `).join('');
+
+                document.getElementById('routine-start-modal').classList.add('active');
+            },
+
+            closeRoutineStartModal() {
+                document.getElementById('routine-start-modal').classList.remove('active');
+            },
+
+            completeRoutine() {
+                this.showToast('Routine completed! 🎉');
+                this.closeRoutineStartModal();
+            },
+
+            deleteRoutine(routineId) {
+                if (confirm('Delete this routine?')) {
+                    this.data.routines = this.data.routines.filter(r => r.id !== routineId);
+                    this.renderRoutines();
+                    this.showToast('Routine deleted');
+                    this.saveData();
+                }
+            },
+
+            // Brain Dump
+            renderBrainDump() {
+                const container = document.getElementById('brain-dumps-list');
+                if (this.data.brainDumps.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🧠</div>
+                            <div class="empty-state-title">Your brain can be messy here.</div>
+                            <div class="empty-state-text">That's what this space is for.</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = this.data.brainDumps.map(dump => `
+                    <div class="card" style="margin-bottom: 1rem;">
+                        <div style="white-space: pre-wrap; word-break: break-word; color: var(--text-muted); margin-bottom: 1rem;">${dump.text}</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">${new Date(dump.date).toLocaleDateString()}</div>
+                        <button class="btn btn-tertiary" onclick="app.deleteBrainDump('${dump.id}')">Delete</button>
+                    </div>
+                `).join('');
+            },
+
+            saveBrainDump() {
+                const text = document.getElementById('brain-dump-textarea').value.trim();
+                if (!text) return;
+
+                this.data.brainDumps.push({
+                    id: Date.now().toString(),
+                    text: text,
+                    date: new Date().toISOString(),
+                });
+
+                document.getElementById('brain-dump-textarea').value = '';
+                this.renderBrainDump();
+                this.showToast('Brain dump saved!');
+                this.saveData();
+            },
+
+            convertBrainDumpToTasks() {
+                const text = document.getElementById('brain-dump-textarea').value.trim();
+                if (!text) return;
+
+                const lines = text.split('\n').filter(l => l.trim());
+                lines.forEach(line => {
+                    this.data.tasks.push({
+                        id: Date.now().toString() + Math.random(),
+                        title: line.trim(),
+                        description: '',
+                        dueDate: '',
+                        priority: 'medium',
+                        energy: 'medium',
+                        time: 0,
+                        category: '',
+                        completed: false,
+                        subtasks: [],
+                        createdAt: new Date().toISOString(),
+                    });
+                });
+
+                document.getElementById('brain-dump-textarea').value = '';
+                this.renderBrainDump();
+                this.showToast(`${lines.length} tasks created!`);
+                this.saveData();
+            },
+
+            deleteBrainDump(dumpId) {
+                if (confirm('Delete this brain dump?')) {
+                    this.data.brainDumps = this.data.brainDumps.filter(d => d.id !== dumpId);
+                    this.renderBrainDump();
+                    this.showToast('Brain dump deleted');
+                    this.saveData();
+                }
+            },
+
+            // Goals
+            renderGoals() {
+                const container = document.getElementById('goals-container');
+                if (this.data.goals.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state" style="grid-column: 1 / -1;">
+                            <div class="empty-state-icon">🎯</div>
+                            <div class="empty-state-title">What would make life feel a little better?</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = this.data.goals.map(goal => {
+                    const progress = goal.target ? (goal.progress / goal.target) * 100 : 0;
+                    return `
+                        <div class="card">
+                            <div class="card-title">${goal.name}</div>
+                            <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+                                ${goal.progress} / ${goal.target}
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${Math.min(progress, 100)}%;"></div>
+                            </div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 1rem; margin-bottom: 1rem;">
+                                ${goal.why ? `Why: ${goal.why}` : ''}
+                            </div>
+                            <button class="btn btn-tertiary" onclick="app.deleteGoal('${goal.id}')">Delete</button>
+                        </div>
+                    `;
+                }).join('');
+            },
+
+            openAddGoalModal() {
+                document.getElementById('goal-form').reset();
+                document.getElementById('goal-modal').classList.add('active');
+            },
+
+            closeGoalModal() {
+                document.getElementById('goal-modal').classList.remove('active');
+            },
+
+            saveGoal(e) {
+                e.preventDefault();
+                this.data.goals.push({
+                    id: Date.now().toString(),
+                    name: document.getElementById('goal-name').value,
+                    category: document.getElementById('goal-category').value,
+                    why: document.getElementById('goal-why').value,
+                    deadline: document.getElementById('goal-deadline').value,
+                    progress: parseInt(document.getElementById('goal-progress').value) || 0,
+                    target: document.getElementById('goal-target').value,
+                });
+                this.closeGoalModal();
+                this.renderGoals();
+                this.showToast('Goal created!');
+                this.saveData();
+            },
+
+            deleteGoal(goalId) {
+                if (confirm('Delete this goal?')) {
+                    this.data.goals = this.data.goals.filter(g => g.id !== goalId);
+                    this.renderGoals();
+                    this.showToast('Goal deleted');
+                    this.saveData();
+                }
+            },
+
+            // Calendar
+            renderCalendar() {
+                const year = this.currentMonth.getFullYear();
+                const month = this.currentMonth.getMonth();
+                const firstDay = new Date(year, month, 1).getDay();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+                const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                    'July', 'August', 'September', 'October', 'November', 'December'];
+                document.getElementById('calendar-title').textContent = `${monthNames[month]} ${year}`;
+
+                let html = `
+                    <div class="calendar-grid">
+                        ${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => 
+                            `<div class="calendar-day-header">${d}</div>`).join('')}
+                `;
+
+                // Previous month days
+                for (let i = firstDay - 1; i >= 0; i--) {
+                    html += `<div class="calendar-day other-month">${daysInPrevMonth - i}</div>`;
+                }
+
+                // Current month days
+                const today = new Date();
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const date = new Date(year, month, day);
+                    const dateStr = this.getDateString(date);
+                    const isToday = dateStr === this.getDateString(today);
+                    const hasTasks = this.data.tasks.some(t => t.dueDate === dateStr);
+                    
+                    html += `<div class="calendar-day ${isToday ? 'today' : ''} ${hasTasks ? 'has-tasks' : ''}">${day}</div>`;
+                }
+
+                // Next month days
+                const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+                for (let day = 1; day <= totalCells - firstDay - daysInMonth; day++) {
+                    html += `<div class="calendar-day other-month">${day}</div>`;
+                }
+
+                html += '</div>';
+                document.getElementById('calendar-container').innerHTML = html;
+            },
+
+            prevMonth() {
+                this.currentMonth.setMonth(this.currentMonth.getMonth() - 1);
+                this.renderCalendar();
+            },
+
+            nextMonth() {
+                this.currentMonth.setMonth(this.currentMonth.getMonth() + 1);
+                this.renderCalendar();
+            },
+
+            // Insights
+            renderInsights() {
+                const thisWeek = this.getThisWeekTasks();
+                const completedThisWeek = thisWeek.filter(t => t.completed).length;
+                
+                const habitsCompleted = this.data.habits.reduce((sum, h) => {
+                    const week = Object.values(h.history || {}).length;
+                    return sum + (week || 0);
+                }, 0);
+
+                const activeStreaks = this.data.habits.filter(h => h.streak > 0).length;
+
+                const goalsProgressed = this.data.goals.filter(g => g.progress > 0).length;
+
+                document.getElementById('insight-tasks').textContent = completedThisWeek;
+                document.getElementById('insight-habits').textContent = habitsCompleted;
+                document.getElementById('insight-streaks').textContent = activeStreaks;
+                document.getElementById('insight-goals').textContent = goalsProgressed;
+
+                // Calculate best day
+                const dayCount = {};
+                this.data.tasks.forEach(task => {
+                    if (task.completed && task.dueDate) {
+                        const dayName = new Date(task.dueDate).toLocaleDateString('en-US', { weekday: 'long' });
+                        dayCount[dayName] = (dayCount[dayName] || 0) + 1;
+                    }
+                });
+
+                let bestDay = 'Not yet determined';
+                let bestCount = 0;
+                Object.entries(dayCount).forEach(([day, count]) => {
+                    if (count > bestCount) {
+                        bestDay = day;
+                        bestCount = count;
+                    }
+                });
+
+                document.getElementById('insights-content').innerHTML = `
+                    <div style="padding: 1rem; background: var(--pink-light); border-radius: var(--radius); margin-bottom: 1rem;">
+                        <div style="font-weight: 600; color: var(--text-dark);">Your best productivity day</div>
+                        <div style="color: var(--text-muted); margin-top: 0.25rem;">${bestDay}</div>
+                    </div>
+                    <p style="color: var(--text-muted);">Keep showing up! Every day counts. 💗</p>
+                `;
+            },
+
+            getThisWeekTasks() {
+                const today = new Date();
+                const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+                return this.data.tasks.filter(t => {
+                    if (!t.dueDate) return false;
+                    const taskDate = new Date(t.dueDate);
+                    return taskDate >= weekAgo && taskDate <= today;
+                });
+            },
+
+            // Focus Mode and Overwhelm
+            openQuickAdd() {
+                const menu = [
+                    { text: '✓ Task', action: 'app.openAddTaskModal()' },
+                    { text: '🌱 Habit', action: 'app.openAddHabitModal()' },
+                    { text: '🧠 Brain Dump', action: 'app.goToPage("braindump")' },
+                    { text: '📝 Note', action: 'app.showToast("Note feature coming soon")' },
+                ];
+
+                // For now, open task modal
+                this.openAddTaskModal();
+            },
+
+            openWhatNextModal() {
+                const tasks = this.data.tasks.filter(t => !t.completed);
+                if (tasks.length === 0) {
+                    this.showToast('You\'ve got everything done! 🎉');
+                    return;
+                }
+
+                // Find best task: high priority, short time, soon due date
+                let bestTask = tasks[0];
+                let bestScore = -Infinity;
+
+                tasks.forEach(task => {
+                    let score = 0;
+                    if (task.priority === 'high') score += 10;
+                    if (task.priority === 'medium') score += 5;
+                    if (task.energy === 'low') score += 3;
+                    if (task.time && task.time <= 15) score += 5;
+                    if (task.dueDate) {
+                        const daysUntil = (new Date(task.dueDate) - new Date()) / (1000 * 60 * 60 * 24);
+                        if (daysUntil <= 1) score += 10;
+                        if (daysUntil <= 3) score += 5;
+                    }
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestTask = task;
+                    }
+                });
+
+                const modal = document.getElementById('focus-modal');
+                const content = document.getElementById('focus-modal-content');
+                content.innerHTML = `
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.2rem; color: var(--text-muted); margin-bottom: 1rem;">Try this next:</div>
+                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-dark); margin-bottom: 1rem;">${bestTask.title}</div>
+                        <div style="color: var(--text-muted); margin-bottom: 2rem;">
+                            Why? <strong>${bestTask.priority === 'high' ? 'It\'s a high-priority task.' : 'It\'s important.'}</strong>
+                            ${bestTask.time ? ` Should only take about ${bestTask.time} minutes.` : ''}
+                        </div>
+                        <div style="display: flex; gap: 1rem; justify-content: center;">
+                            <button class="btn btn-primary" onclick="app.startFocusForTask('${bestTask.id}')">Start Focus</button>
+                            <button class="btn btn-secondary" onclick="app.closeFocusModal()">Pick Something Else</button>
+                        </div>
+                    </div>
+                `;
+                modal.classList.add('active');
+            },
+
+            startFocusForTask(taskId) {
+                const task = this.data.tasks.find(t => t.id === taskId);
+                if (!task) return;
+
+                this.closeFocusModal();
+                this.startFocus(task);
+            },
+
+            startFocus(task) {
+                const timeInMinutes = task.time || 15;
+                this.focusTimeRemaining = timeInMinutes * 60;
+
+                const modal = document.getElementById('focus-modal');
+                const content = document.getElementById('focus-modal-content');
+                content.innerHTML = `
+                    <div class="focus-task-display">
+                        <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">Focus on:</div>
+                        <div class="focus-task-title">${task.title}</div>
+                        <div class="focus-task-meta">
+                            <span>${task.time || 15} min</span>
+                            <span>${task.priority === 'high' ? '🔴 High' : task.priority === 'medium' ? '🟡 Medium' : '🟢 Low'}</span>
+                        </div>
+                        <div class="focus-timer" id="focus-timer">15:00</div>
+                    </div>
+                    <div class="focus-buttons">
+                        <button class="btn btn-primary" id="focus-start-btn" onclick="app.toggleFocusTimer()">Start Focus</button>
+                        <button class="btn btn-secondary" onclick="app.completeTaskFromFocus('${task.id}')">Done with this</button>
+                        <button class="btn btn-tertiary" onclick="app.closeFocusModal()">Close</button>
+                    </div>
+                `;
+                modal.classList.add('active');
+                this.updateFocusTimer();
+            },
+
+            toggleFocusTimer() {
+                const btn = document.getElementById('focus-start-btn');
+                if (this.focusTimer) {
+                    clearInterval(this.focusTimer);
+                    this.focusTimer = null;
+                    btn.textContent = 'Resume Focus';
+                } else {
+                    btn.textContent = 'Pause Focus';
+                    this.focusTimer = setInterval(() => {
+                        this.focusTimeRemaining--;
+                        this.updateFocusTimer();
+                        if (this.focusTimeRemaining <= 0) {
+                            clearInterval(this.focusTimer);
+                            this.focusTimer = null;
+                            this.showToast('Focus time complete! 🎉');
+                            this.closeFocusModal();
+                        }
+                    }, 1000);
+                }
+            },
+
+            updateFocusTimer() {
+                const minutes = Math.floor(this.focusTimeRemaining / 60);
+                const seconds = this.focusTimeRemaining % 60;
+                const timerEl = document.getElementById('focus-timer');
+                if (timerEl) {
+                    timerEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }
+            },
+
+            completeTaskFromFocus(taskId) {
+                this.toggleTask(taskId);
+                this.closeFocusModal();
+                if (this.focusTimer) {
+                    clearInterval(this.focusTimer);
+                    this.focusTimer = null;
+                }
+            },
+
+            closeFocusModal() {
+                document.getElementById('focus-modal').classList.remove('active');
+                if (this.focusTimer) {
+                    clearInterval(this.focusTimer);
+                    this.focusTimer = null;
+                }
+            },
+
+            openOverwhelmModal() {
+                document.getElementById('overwhelm-modal').classList.add('active');
+            },
+
+            closeOverwhelmModal() {
+                document.getElementById('overwhelm-modal').classList.remove('active');
+            },
+
+            overwhelmChoice(type) {
+                this.closeOverwhelmModal();
+
+                let taskToFocus = null;
+                const incompleteTasks = this.data.tasks.filter(t => !t.completed);
+
+                if (type === 'quick') {
+                    taskToFocus = incompleteTasks.find(t => t.time && t.time <= 5) || incompleteTasks[0];
+                } else if (type === 'important') {
+                    taskToFocus = incompleteTasks.find(t => t.priority === 'high') || incompleteTasks[0];
+                } else if (type === 'easy') {
+                    taskToFocus = incompleteTasks.find(t => t.energy === 'low') || incompleteTasks[0];
+                }
+
+                if (taskToFocus) {
+                    this.startFocus(taskToFocus);
+                } else {
+                    this.showToast('You don\'t have any tasks yet. That\'s okay! 💙');
+                }
+            },
+
+            // Data Management
+            data: {
+                focus: { must: '', should: '', could: '' },
+                tasks: [],
+                habits: [],
+                routines: [],
+                brainDumps: [],
+                goals: [],
+            },
+
+            loadData() {
+                const saved = localStorage.getItem('adhdLifePlanner');
+                if (saved) {
+                    this.data = JSON.parse(saved);
+                }
+                const userName = localStorage.getItem('adhdLifePlannerUser');
+                if (userName) {
+                    this.currentUser = userName;
+                }
+            },
+
+            saveData() {
+                localStorage.setItem('adhdLifePlanner', JSON.stringify(this.data));
+                localStorage.setItem('adhdLifePlannerUser', this.currentUser);
+            },
+
+            addSampleData() {
+                if (this.data.tasks.length === 0) {
+                    this.data.tasks = [
+                        {
+                            id: '1',
+                            title: 'Reply to Sarah\'s email',
+                            description: 'She asked about the project update',
+                            dueDate: this.getDateString(new Date()),
+                            priority: 'high',
+                            energy: 'medium',
+                            time: 5,
+                            category: 'Work',
+                            completed: false,
+                            subtasks: [],
+                            createdAt: new Date().toISOString(),
+                        },
+                        {
+                            id: '2',
+                            title: 'Finish laundry',
+                            description: 'Fold and put away clothes',
+                            dueDate: this.getDateString(new Date()),
+                            priority: 'medium',
+                            energy: 'medium',
+                            time: 20,
+                            category: 'Home',
+                            completed: false,
+                            subtasks: [
+                                { title: 'Take clothes out of dryer', completed: false },
+                                { title: 'Fold everything', completed: false },
+                                { title: 'Put away', completed: false },
+                            ],
+                            createdAt: new Date().toISOString(),
+                        },
+                        {
+                            id: '3',
+                            title: 'Buy groceries',
+                            dueDate: this.getDateString(new Date(Date.now() + 86400000)),
+                            priority: 'high',
+                            energy: 'low',
+                            time: 30,
+                            category: 'Personal',
+                            completed: false,
+                            subtasks: [],
+                            createdAt: new Date().toISOString(),
+                        },
+                    ];
+
+                    this.data.habits = [
+                        {
+                            id: 'h1',
+                            name: 'Drink water',
+                            icon: '💧',
+                            color: 'blue',
+                            streak: 5,
+                            history: {},
+                        },
+                        {
+                            id: 'h2',
+                            name: '10 minute walk',
+                            icon: '🚶',
+                            color: 'green',
+                            streak: 3,
+                            history: {},
+                        },
+                        {
+                            id: 'h3',
+                            name: 'Skincare',
+                            icon: '✨',
+                            color: 'pink',
+                            streak: 7,
+                            history: {},
+                        },
+                    ];
+
+                    this.data.goals = [
+                        {
+                            id: 'g1',
+                            name: 'Save $2,000',
+                            category: 'money',
+                            why: 'Emergency fund',
+                            deadline: '2025-12-31',
+                            progress: 850,
+                            target: '$2,000',
+                        },
+                        {
+                            id: 'g2',
+                            name: 'Read 12 books',
+                            category: 'personal',
+                            why: 'Personal growth and relaxation',
+                            deadline: '2025-12-31',
+                            progress: 3,
+                            target: '12 books',
+                        },
+                    ];
+
+                    this.saveData();
+                }
+            },
+
+            exportData() {
+                const dataStr = JSON.stringify(this.data, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'adhd-life-planner-backup.json';
+                a.click();
+                URL.revokeObjectURL(url);
+                this.showToast('Data exported!');
+            },
+
+            importData() {
+                document.getElementById('import-file').click();
+                document.getElementById('import-file').addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        try {
+                            this.data = JSON.parse(event.target.result);
+                            this.saveData();
+                            this.showToast('Data imported!');
+                            location.reload();
+                        } catch (err) {
+                            this.showToast('Error importing data');
+                        }
+                    };
+                    reader.readAsText(file);
+                }, { once: true });
+            },
+
+            resetAllData() {
+                if (confirm('Are you sure? This will delete everything.')) {
+                    this.data = {
+                        focus: { must: '', should: '', could: '' },
+                        tasks: [],
+                        habits: [],
+                        routines: [],
+                        brainDumps: [],
+                        goals: [],
+                    };
+                    this.saveData();
+                    location.reload();
+                }
+            },
+
+            // Utilities
+            getDateString(date) {
+                return date.toISOString().split('T')[0];
+            },
+
+            showToast(message) {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                toast.textContent = message;
+                container.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.style.animation = 'slideIn 0.3s ease reverse';
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            },
+        };
+
+        // Initialize app on load
+        document.addEventListener('DOMContentLoaded', () => {
+            app.init();
+
+            // Setup event listeners for What Next and Overwhelmed buttons
+            document.getElementById('what-next-btn').addEventListener('click', () => app.openWhatNextModal());
+            document.getElementById('overwhelmed-btn').addEventListener('click', () => app.openOverwhelmModal());
+        });
+    </script>
+</body>
+</html>
